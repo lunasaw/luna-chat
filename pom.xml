@@ -9,13 +9,17 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>io.github.lunasaw</groupId>
-    <artifactId>springboot-websocket-demo</artifactId>
+    <artifactId>luna-chat</artifactId>
     <version>1.1-SNAPSHOT</version>
     <name>luna-chat</name>
     <description>luna-chat</description>
 
     <properties>
         <java.version>1.8</java.version>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <docker.host>https://106.14.30.12:2375</docker.host>
+        <docker.maven.plugin.version>1.2.2</docker.maven.plugin.version>
     </properties>
 
     <dependencies>
@@ -52,12 +56,67 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                </plugin>
+                <!--使用docker-maven-plugin插件 -->
+                <plugin>
+                    <groupId>com.spotify</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>${docker.maven.plugin.version}</version>
+                    <!--将插件绑定在某个phase执行 -->
+                    <executions>
+                        <execution>
+                            <id>build-image</id>
+                            <!--将插件绑定在package这个phase上。也就是说，用户只需执行mvn package ，就会自动执行mvn docker:build -->
+                            <phase>package</phase>
+                            <goals>
+                                <goal>build</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <forceTags>true</forceTags>
+                        <!--指定生成的镜像名 该处修改为自己想要生成的镜像名称-->
+                        <imageName>luna-chat</imageName>
+                        <!--指定标签 -->
+                        <imageTags>
+                            <imageTag>latest</imageTag>
+                        </imageTags>
+                        <!-- 指定 Dockerfile 路径 -->
+                        <dockerDirectory>${project.basedir}/docker</dockerDirectory>
+                        <!--指定远程 docker api地址 -->
+                        <dockerHost>${docker.host}</dockerHost>
+                        <!--指定pem证书文件路径地址 -->
+                        <dockerCertPath>/Users/luna/Documents/luna-linux-conf/certs</dockerCertPath>
+                        <!-- 这里是复制 jar 包到 docker 容器指定目录配置 -->
+                        <resources>
+                            <resource>
+                                <targetPath>/</targetPath>
+                                <!--jar 包所在的路径  此处配置的 即对应 target 目录 -->
+                                <directory>${project.build.directory}</directory>
+                                <!-- 需要包含的 jar包 ，这里对应的是 Dockerfile中添加的文件名 -->
+                                <include>${project.build.finalName}.jar</include>
+                            </resource>
+                        </resources>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
-
 </project>

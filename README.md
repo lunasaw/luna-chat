@@ -6,3 +6,11 @@
 
 ![luna-chat](./img/luna-chat.png)
 
+```
+docker run -d \
+    -p 8003:8003 \
+    --name luna-post \
+    --privileged=true \
+    --restart always \
+    luna-chat
+```

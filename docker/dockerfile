@@ -1,0 +1,12 @@
+# 指定jdk环境版本，基于java8创建镜像
+FROM java:8
+# 挂载临时目录
+VOLUME /root/openresty/root/luna/chat
+# 添加指定jar包到容器《此处为项目打包产生的jar包全名》
+ADD luna-chat-1.1-SNAPSHOT.jar luna-chat-1.1.jar
+# 容器向外暴露的端口号《指该项目运行所占用的的端口号》
+EXPOSE 8003
+# 容器运行程序的命令
+ENTRYPOINT [ "java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/luna-chat-1.1.jar" ]
+# 指定维护者的名字
+MAINTAINER luna
